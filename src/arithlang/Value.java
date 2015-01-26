@@ -4,31 +4,34 @@ public interface Value
 {
 	public String toString();
 
-	static class Int implements Value
+	static class NumVal implements Value
 	{
-		private int _val;
+		private double _val;
 
-		public Int(int v)
+		public NumVal(double v)
 		{
 			_val = v;
 		}
 
-		public int v()
+		public double v()
 		{
 			return _val;
 		}
 
 		public String toString()
 		{
+			int tmp = (int) _val;
+			if (tmp == _val)
+				return "" + tmp;
 			return "" + _val;
 		}
 	}
 
-	static class Bool implements Value
+	static class BoolVal implements Value
 	{
 		private boolean _val;
 
-		public Bool(boolean v)
+		public BoolVal(boolean v)
 		{
 			_val = v;
 		}
@@ -44,9 +47,9 @@ public interface Value
 		}
 	}
 
-	static class Unit implements Value
+	static class UnitVal implements Value
 	{
-		public static final Unit v = new Unit();
+		public static final UnitVal v = new UnitVal();
 
 		public String toString()
 		{

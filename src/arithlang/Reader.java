@@ -156,12 +156,10 @@ public class Reader
 		{
 			switch (node.getRuleContext().getRuleIndex())
 			{
-				case exp:
-					return visitChildrenHelper(node).get(0);
 				case varexp:
-					return new AST.VarExp(node.getChild(0).getText());
+					return convertVarExp(node);
 				case numexp:
-					return visitChildrenHelper(node).get(0);
+					return convertConst(node);
 				case addexp:
 					return convertAddExp(node);
 				case subexp:
@@ -170,11 +168,40 @@ public class Reader
 					return convertMultExp(node);
 				case divexp:
 					return convertDivExp(node);
+				case exp:
+					return visitChildrenHelper(node).get(0);
 				case program:
 				default:
 					System.out.println("Conversion error (from parse tree to AST): found unknown/unhandled case " + parser.getRuleNames()[node.getRuleContext().getRuleIndex()]);
 			}
 			return null;
+		}
+
+		/**
+		 * Syntax: Identifier
+		 */
+		private AST.VarExp convertVarExp(RuleNode node)
+		{
+			if (node.getChildCount() > 1)
+				throw new ConversionException("Conversion error: " + node.toStringTree(parser) + ", " + "expected only Identifier, found " + node.getChildCount() + " nodes.");
+
+			String s = node.getChild(0).getText();
+			return new AST.VarExp(s);
+		}
+
+		/**
+		 * Syntax: Number
+		 */
+		private AST.NumExp convertConst(RuleNode node)
+		{
+			try
+			{
+				return new AST.NumExp(Double.parseDouble(node.getText()));
+			}
+			catch (NumberFormatException e)
+			{
+			}
+			throw new ConversionException("Conversion error: " + node.toStringTree(parser) + ", " + "expected Number, found " + node.getText());
 		}
 
 		/**
@@ -335,7 +362,7 @@ public class Reader
 			try
 			{
 				int v = Integer.parseInt(s);
-				return new AST.Const(v);
+				return new AST.NumExp(v);
 			}
 			catch (NumberFormatException e)
 			{
