@@ -13,6 +13,9 @@ grammar ArithLang;
         | subexp 
         | multexp 
         | divexp 
+        | powexp
+        | maxexp
+        | minexp
         ;
  
  varexp  : 
@@ -54,6 +57,25 @@ grammar ArithLang;
  		    ')' 
  		;
 
+
+ powexp  : 
+ 		'(' '^' 
+ 		    exp 
+ 		    (exp)+ 
+ 		    ')' 
+ 		;
+
+ maxexp  : 
+ 		'(' '>?' 
+ 		    (exp)+ 
+ 		    ')' 
+ 		;
+
+ minexp  : 
+ 		'(' '<?' 
+ 		    (exp)+ 
+ 		    ')' 
+ 		; 		 
 
  // Lexical Specification of this Programming Language
  //  - lexical specification rules start with uppercase

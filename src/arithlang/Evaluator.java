@@ -21,11 +21,17 @@ public class Evaluator implements Visitor<Value>
 	{
 		List<Exp> operands = e.all();
 		double result = 0;
+
 		for (Exp exp : operands)
 		{
-			NumVal intermediate = (NumVal) exp.accept(this); // Dynamic type-checking
-			result += intermediate.v(); //Semantics of AddExp in terms of the target language.
+			Value intermediate = (Value) exp.accept(this);
+
+			if (intermediate instanceof DynamicError)
+				return intermediate;
+
+			result += ((NumVal) intermediate).v(); //Semantics of AddExp in terms of the target language.
 		}
+
 		return new NumVal(result);
 	}
 
@@ -35,19 +41,106 @@ public class Evaluator implements Visitor<Value>
 		return new NumVal(e.v());
 	}
 
+	/***************** Question 6 **************************/
 	@Override
 	public Value visit(DivExp e)
 	{
 		List<Exp> operands = e.all();
-		NumVal lVal = (NumVal) operands.get(0).accept(this);
-		double result = lVal.v();
+		Value lVal = (Value) operands.get(0).accept(this);
+
+		if (lVal instanceof DynamicError)
+			return lVal;
+
+		double result = ((NumVal) lVal).v();
 		for (int i = 1; i < operands.size(); i++)
 		{
-			NumVal rVal = (NumVal) operands.get(i).accept(this);
-			result = result / rVal.v();
+
+			Value rVal = (Value) operands.get(i).accept(this);
+			if (rVal instanceof DynamicError)
+				return rVal;
+
+			result = result / ((NumVal) rVal).v();
+
+			if (Double.isInfinite(result))
+				return new DynamicError("Cannont divide by argument #" + (1 + i) + " in divexp: divide by zero error.");
+
 		}
 		return new NumVal(result);
+
 	}
+
+	/***************** Question 4 **************************/
+	@Override
+	public Value visit(PowExp e)
+	{
+		List<Exp> operands = e.all();
+		Value lVal = (Value) operands.get(0).accept(this);
+
+		if (lVal instanceof DynamicError)
+			return lVal;
+
+		double result = ((NumVal) lVal).v();
+		for (int i = 1; i < operands.size(); i++)
+		{
+
+			Value rVal = (Value) operands.get(i).accept(this);
+			if (rVal instanceof DynamicError)
+				return rVal;
+
+			result = Math.pow(result, ((NumVal) rVal).v());
+		}
+
+		return new NumVal(result);
+
+	}
+
+	/***************** Question 5 **************************/
+	@Override
+	public Value visit(MaxExp e)
+	{
+		List<Exp> operands = e.all();
+		Value lVal = (Value) operands.get(0).accept(this);
+
+		if (lVal instanceof DynamicError)
+			return lVal;
+
+		double result = ((NumVal) lVal).v();
+		for (int i = 1; i < operands.size(); i++)
+		{
+			Value rVal = (Value) operands.get(i).accept(this);
+			if (rVal instanceof DynamicError)
+				return rVal;
+
+			result = Math.max(result, ((NumVal) rVal).v());
+		}
+
+		return new NumVal(result);
+	}
+
+	@Override
+	public Value visit(MinExp e)
+	{
+		List<Exp> operands = e.all();
+		Value lVal = (Value) operands.get(0).accept(this);
+
+		if (lVal instanceof DynamicError)
+			return lVal;
+
+		double result = ((NumVal) lVal).v();
+		for (int i = 1; i < operands.size(); i++)
+		{
+			Value rVal = (Value) operands.get(i).accept(this);
+			if (rVal instanceof DynamicError)
+				return rVal;
+
+			result = Math.min(result, ((NumVal) rVal).v());
+		}
+
+		return new NumVal(result);
+
+	}
+
+	/***************** End Question 5 **********************/
 
 	@Override
 	public Value visit(ErrorExp e)
@@ -62,9 +155,13 @@ public class Evaluator implements Visitor<Value>
 		double result = 1;
 		for (Exp exp : operands)
 		{
-			NumVal intermediate = (NumVal) exp.accept(this); // Dynamic type-checking
-			result *= intermediate.v(); //Semantics of MultExp.
+			Value intermediate = (Value) exp.accept(this);
+			if (intermediate instanceof DynamicError)
+				return intermediate;
+
+			result *= ((NumVal) intermediate).v(); //Semantics of MultExp.
 		}
+
 		return new NumVal(result);
 	}
 
@@ -78,13 +175,20 @@ public class Evaluator implements Visitor<Value>
 	public Value visit(SubExp e)
 	{
 		List<Exp> operands = e.all();
-		NumVal lVal = (NumVal) operands.get(0).accept(this);
-		double result = lVal.v();
+		Value lVal = (Value) operands.get(0).accept(this);
+		if (lVal instanceof DynamicError)
+			return lVal;
+
+		double result = ((NumVal) lVal).v();
 		for (int i = 1; i < operands.size(); i++)
 		{
-			NumVal rVal = (NumVal) operands.get(i).accept(this);
-			result = result - rVal.v();
+
+			Value rVal = (Value) operands.get(i).accept(this);
+			if (rVal instanceof DynamicError)
+				return rVal;
+			result = result - ((NumVal) rVal).v();
 		}
+
 		return new NumVal(result);
 	}
 

@@ -138,6 +138,49 @@ public interface AST
 		}
 	}
 
+	/***************** Question 4 **************************/
+	public static class PowExp extends CompoundArithExp
+	{
+		public PowExp(List<Exp> args)
+		{
+			super(args);
+		}
+
+		public Object accept(Visitor visitor)
+		{
+			return visitor.visit(this);
+		}
+	}
+
+	/***************** Question 5 **************************/
+	public static class MaxExp extends CompoundArithExp
+	{
+		public MaxExp(List<Exp> args)
+		{
+			super(args);
+		}
+
+		public Object accept(Visitor visitor)
+		{
+			return visitor.visit(this);
+		}
+	}
+
+	public static class MinExp extends CompoundArithExp
+	{
+		public MinExp(List<Exp> args)
+		{
+			super(args);
+		}
+
+		public Object accept(Visitor visitor)
+		{
+			return visitor.visit(this);
+		}
+	}
+
+	/***************** End Question 5 **********************/
+
 	public static class MultExp extends CompoundArithExp
 	{
 		public MultExp(List<Exp> args)
@@ -153,6 +196,17 @@ public interface AST
 
 	public static class ErrorExp extends Exp
 	{
+		String err = "";
+
+		public ErrorExp()
+		{
+		}
+
+		public ErrorExp(String err)
+		{
+			this.err = err;
+		}
+
 		public Object accept(Visitor visitor)
 		{
 			return visitor.visit(this);
@@ -171,6 +225,16 @@ public interface AST
 		public T visit(AST.MultExp e);
 
 		public T visit(AST.DivExp e);
+
+		/***************** Question 4 **************************/
+		public T visit(AST.PowExp e);
+
+		/***************** Question 5 **************************/
+		public T visit(AST.MaxExp e);
+
+		public T visit(AST.MinExp e);
+
+		/***************** End Question 5 ***********************/
 
 		public T visit(AST.Program p);
 

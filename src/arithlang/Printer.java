@@ -54,6 +54,34 @@ public class Printer
 			return result + ")";
 		}
 
+		/***************** Question 4 **************************/
+		public String visit(PowExp e)
+		{
+			String result = "(^";
+			for (AST.Exp exp : e.all())
+				result += " " + exp.accept(this);
+			return result + ")";
+		}
+
+		/***************** Question 5 **************************/
+
+		public String visit(MaxExp e)
+		{
+			String result = "(>?";
+			for (AST.Exp exp : e.all())
+				result += " " + exp.accept(this);
+			return result + ")";
+		}
+
+		public String visit(MinExp e)
+		{
+			String result = "(<?";
+			for (AST.Exp exp : e.all())
+				result += " " + exp.accept(this);
+			return result + ")";
+		}
+
+		/***************** End Question 5 **********************/
 		public String visit(ErrorExp e)
 		{
 			return e.toString();

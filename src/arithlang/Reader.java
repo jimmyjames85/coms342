@@ -26,7 +26,11 @@ public class Reader
 	//Convention: New rules are always added at the end of the file. 
 	private static final String startRule = "program";
 	private static final int program = 0, exp = 1, varexp = 2, numexp = 3, addexp = 4, subexp = 5, multexp = 6, divexp = 7;
-
+	/*****************Question 4**************************/					
+	private static final int powexp = 8;
+	/*****************Question 5**************************/
+	private static final int maxexp = 9, minexp=10;
+	
 	private static final boolean DEBUG = false;
 
 	Program read() throws IOException
@@ -168,6 +172,14 @@ public class Reader
 					return convertMultExp(node);
 				case divexp:
 					return convertDivExp(node);
+				/*****************Question 4**************************/
+				case powexp:
+					return convertPowExp(node);
+				/*****************Question 5**************************/
+				case maxexp:
+					return convertMaxExp(node);
+				case minexp:
+					return convertMinExp(node);
 				case exp:
 					return visitChildrenHelper(node).get(0);
 				case program:
@@ -244,6 +256,37 @@ public class Reader
 			return new AST.DivExp(operands);
 		}
 
+		/*****************Question 4**************************/
+		/**
+		 * Syntax: (/ exp* )
+		 */
+		private AST.Exp convertPowExp(RuleNode node)
+		{
+			int index = expect(node, 0, "(", "^");
+			List<AST.Exp> operands = expectOperands(node, index);
+			return new AST.PowExp(operands);
+		}
+		/*****************Question 5**************************/
+		/**
+		 * Syntax: (/ exp* )
+		 */
+		private AST.Exp convertMaxExp(RuleNode node)
+		{
+			int index = expect(node, 0, "(", ">?");
+			List<AST.Exp> operands = expectOperands(node, index);
+			return new AST.MaxExp(operands);
+		}		
+		/**
+		 * Syntax: (/ exp* )
+		 */
+		private AST.Exp convertMinExp(RuleNode node)
+		{
+			int index = expect(node, 0, "(", "<?");
+			List<AST.Exp> operands = expectOperands(node, index);
+			return new AST.MinExp(operands);
+		}
+		/***************** End Question 5 ********************/
+		
 		List<AST.Exp> expectOperands(RuleNode node, int startChildIndex)
 		{
 			int index = startChildIndex;
