@@ -1,6 +1,7 @@
 package funclang;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.FileReader;
@@ -111,6 +112,11 @@ public class Reader
 	{
 		try
 		{
+			if(new File(fileName).exists())
+				System.out.println("found it " + fileName);
+			else
+				fileName="../" + fileName;
+			
 			try (BufferedReader br = new BufferedReader(new FileReader(fileName)))
 			{
 				StringBuilder sb = new StringBuilder();
@@ -750,7 +756,16 @@ public class Reader
 	{
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		System.out.print("$ ");
-		String programText = br.readLine();
+		
+		boolean terminated = false;
+		String programText = "";
+		while(!terminated)
+		{
+			programText += " " + br.readLine();
+			terminated=programText.endsWith(";");
+		}
+		
+		programText=programText.substring(0,programText.length()-1);//remove ;
 		return runFile(programText);
 	}
 
