@@ -12,3 +12,11 @@
 )
 
 "Loaded procedures for Homework 4"
+
+
+(define pi 3.14159265359)
+(define fourByThree 1.22222)
+(define volume
+  (lambda
+    (radius)
+    (* fourByThree pi radius radius radius)))
