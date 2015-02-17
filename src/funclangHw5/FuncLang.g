@@ -34,6 +34,14 @@ grammar FuncLang;
         | consexp //New for funclang
         | listexp //New for funclang
         | nullexp //New for funclang
+        | numQexp
+        | boolQexp
+        | stringQexp        
+        | procQexp        
+        | pairQexp        
+        | listQexp        
+        | nullQexp
+        | unitQexp
         ;
  
  varexp  : 
@@ -162,8 +170,65 @@ grammar FuncLang;
  			')' 
  		;
 
+numQexp : 
+	'(' NumQ
+		exp
+		 ')'
+	 ;
+
+boolQexp :
+	'(' BoolQ
+		exp
+		 ')'
+	 ;
+
+stringQexp :
+	'(' StringQ
+		exp
+		 ')'
+	 ;
+	 
+procQexp :
+	'(' ProcQ
+		exp
+		 ')'
+	 ;
+
+pairQexp :
+	'(' PairQ
+		exp
+		 ')'
+	 ;
+
+listQexp :
+	'(' ListQ
+		exp
+		 ')'
+	 ;
+
+nullQexp :
+	'(' NullQ
+		exp
+		 ')'
+	 ;
+
+unitQexp :
+	'(' UnitQ
+		exp
+		 ')'
+	 ;
+
+
 // Keywords
 
+ UnitQ : 'unit?';
+ NullQ : 'null?';
+ ListQ : 'list?';
+ PairQ : 'pair?';
+ ProcQ : 'procedure?';
+ StringQ : 'string?';	 
+ BoolQ : 'boolean?';
+ NumQ : 'number?';
  Let : 'let' ;
  Define : 'define' ;
  Lambda : 'lambda' ;
