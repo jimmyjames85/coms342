@@ -337,17 +337,6 @@ public interface AST
 			_value_exps = value_exps;
 			_body = body;
 
-			for (int i = 0; i < value_exps.size(); i++)
-			{
-				Exp val = value_exps.get(i);
-				if (val instanceof RefExp)
-					System.out.println(names.get(i) + " is a RefExp");
-				if(val instanceof VarExp)
-				{
-					System.out.println(names.get(i) + " is a varExp");
-				}
-			}
-
 		}
 
 		public Object accept(Visitor visitor, Env env)
