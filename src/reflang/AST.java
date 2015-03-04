@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import reflang.Env;
+import reflang.Value.DynamicError;
 
 /**
  * This class hierarchy represents expressions in the abstract syntax tree
@@ -336,7 +337,6 @@ public interface AST
 			_names = names;
 			_value_exps = value_exps;
 			_body = body;
-
 		}
 
 		public Object accept(Visitor visitor, Env env)
@@ -910,8 +910,16 @@ public interface AST
 		}
 
 		public Object accept(Visitor visitor, Env env)
-		{
-			return visitor.visit(this, env);
+		{			
+			Object ret = visitor.visit(this, env);
+			
+			//QUESTION 4 also in Heap.Heap16Bit.setref()
+			if(ret instanceof DynamicError)
+			{
+				String err = ((DynamicError)ret).tostring()+ " in " + new Printer.Formatter().visit(this, env);
+				ret = new DynamicError(err);
+			}
+			return ret; 
 		}
 
 		public Exp lhs_exp()
