@@ -39,6 +39,8 @@ grammar RefLang;
         | derefexp //New for reflang
         | assignexp //New for reflang
         | freeexp //New for reflang
+        | rarithexp //new for reflang
+        | reachableexp 
         ;
  
  varexp  : 
@@ -173,6 +175,7 @@ grammar RefLang;
  			exp 
  			')' 
  		;
+ 
 
 // ******************* New Expressions for RefLang **********************
  refexp  :
@@ -200,6 +203,11 @@ grammar RefLang;
                     ')'
                 ;
 
+ rarithexp :
+ 		'(' RarithQ exp ')';
+ 		
+ reachableexp: '(' reachable Identifier ')';
+ 		
 // Keywords
 
  Let : 'let' ;
@@ -222,6 +230,8 @@ grammar RefLang;
  Deref : 'deref' ;
  Assign : 'set!' ;
  Free : 'free' ;
+ RarithQ : 'rarith?';
+ reachable : 'reachable';
  
  // Lexical Specification of this Programming Language
  //  - lexical specification rules start with uppercase

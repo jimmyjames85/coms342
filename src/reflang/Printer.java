@@ -219,5 +219,18 @@ public class Printer {
                     result += e.value_exp().accept(this, env);
                     return result + ")";
                 }
+                
+                public String visit(AST.RarithExp e, Env env) {
+                    String result = "(rarith? ";
+                    result += e.value_exp().accept(this, env);
+                    return result + ")";
+                }
+                
+                public String visit(AST.ReachableExp e, Env env) {
+                    String result = "(reachable ";
+                    result += e.value_exp().accept(this, env);
+                    return result + ")";
+                }                
+                                
 	}
 }

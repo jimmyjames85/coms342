@@ -32,7 +32,8 @@ public class Reader {
 		ifexp = 14, lessexp = 15, equalexp = 16, greaterexp = 17, // Other expressions for convenience.
 		carexp = 18, cdrexp = 19, consexp = 20, listexp = 21, nullexp = 22,
 		letrecexp = 23, // New expression for the letrec language.
-		refexp = 24, derefexp = 25, assignexp = 26, freeexp = 27 // New expression for the reflang language.
+		refexp = 24, derefexp = 25, assignexp = 26, freeexp = 27, // New expression for the reflang language.
+		rarithexp = 28, reachable=29;
 		;
 
 	private static final boolean DEBUG = false;
@@ -175,6 +176,8 @@ public class Reader {
                                 case assignexp: return convertAssignExp(node);
                                 case freeexp: return convertFreeExp(node);
 				case exp: return visitChildrenHelper(node).get(0);
+				case rarithexp: return convertRarithExp(node);
+				case reachable: return convertReachableExp(node);
 				case program: 
 				default: 
 					System.out.println("Conversion error (from parse tree to AST): found unknown/unhandled case " + parser.getRuleNames()[node.getRuleContext().getRuleIndex()]);
@@ -481,7 +484,28 @@ public class Reader {
                         expect(node,index++, ")");
                         return new AST.DerefExp(loc_exp);
                 }
-        
+                
+                /**
+                 *
+                 * Syntax: (rarith? exp)
+                 */
+                private AST.Exp convertRarithExp(RuleNode node)
+                {
+                	int index = expect(node,0,"(", "rarith?");
+                    AST.Exp loc_exp = node.getChild(index++).accept(this);
+                    expect(node,index++, ")");
+                    return new AST.RarithExp(loc_exp);                	
+                }
+                
+                private AST.Exp convertReachableExp(RuleNode node)
+                {
+                	int index = expect(node,0,"(", "reachable");
+                    AST.Exp loc_exp = node.getChild(index++).accept(this);
+                    expect(node,index++, ")");
+                    return new AST.ReachableExp(loc_exp);                	
+                }
+                
+
                 /**
                  *  Syntax: ( set! lhs_exp rhs_exp )
                  */
