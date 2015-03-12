@@ -73,8 +73,20 @@ public class Evaluator implements Visitor<Value>
 	
 	public Value visit(ReachableExp e, Env env)
 	{
+		VarExp var = (VarExp)e.value_exp();//this should be an identifier
+		RefVal p= (RefVal)env.get(var.name());//this should be a pointer
+		Value val = heap.deref(p);//This can be anything so Value needs to 
+		                          //recursively return all reachable pointers
+
 		
-		env.get(e.value_exp())
+		//System.out.println(var._name + "--> loc: " + val.loc());
+		
+		//var.
+		
+
+		
+		
+		//env.get(e.value_exp())
 		System.out.println("");
 		return new Value.BoolVal(false);
 /*		boolean ret = false;

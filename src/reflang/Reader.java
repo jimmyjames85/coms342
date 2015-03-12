@@ -500,9 +500,11 @@ public class Reader {
                 private AST.Exp convertReachableExp(RuleNode node)
                 {
                 	int index = expect(node,0,"(", "reachable");
-                    AST.Exp loc_exp = node.getChild(index++).accept(this);
+                	//System.out.println(java.util.Arrays.toString(expectString(node, index++, 1)));
+                	String name = expectString(node, index++, 1)[0];
                     expect(node,index++, ")");
-                    return new AST.ReachableExp(loc_exp);                	
+                	System.out.println(name);
+                    return new AST.ReachableExp(new AST.VarExp(name));                	
                 }
                 
 

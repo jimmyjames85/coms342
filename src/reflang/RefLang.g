@@ -206,7 +206,7 @@ grammar RefLang;
  rarithexp :
  		'(' RarithQ exp ')';
  		
- reachableexp: '(' reachable Identifier ')';
+ reachableexp : '(' Reachable Identifier ')';
  		
 // Keywords
 
@@ -231,7 +231,7 @@ grammar RefLang;
  Assign : 'set!' ;
  Free : 'free' ;
  RarithQ : 'rarith?';
- reachable : 'reachable';
+ Reachable : 'reachable';
  
  // Lexical Specification of this Programming Language
  //  - lexical specification rules start with uppercase
