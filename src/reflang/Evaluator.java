@@ -4,11 +4,20 @@ import static reflang.AST.*;
 import static reflang.Heap.*;
 import static reflang.Value.*;
 
-
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.TreeSet;
 import java.io.File;
 
+import reflang.AST.RarithExp;
+import reflang.AST.ReachableExp;
+import reflang.AST.VarExp;
+import reflang.Value.BoolVal;
+import reflang.Value.NumVal;
+import reflang.Value.PairVal;
+import reflang.Value.RefVal;
 import reflang.Env.*;
 
 public class Evaluator implements Visitor<Value>
@@ -26,32 +35,21 @@ public class Evaluator implements Visitor<Value>
 		return (Value) p.accept(this, initEnv);
 	}
 
-	private int getNumValOrRefLocValue(Value val)
-	{
-		int ret = 0;
-		if(val instanceof NumVal)
-			ret = (int)((NumVal)val).v();
-		else
-			ret = ((RefVal)val).loc();
-			
-		return ret;
-	}
-	
 	@Override
 	public Value visit(AddExp e, Env env)
 	{
 		List<Exp> operands = e.all();
 		int result = 0;
-		
+
 		boolean refValPresent = false;
 		for (Exp exp : operands)
 		{
-			Value intermediate = (Value)exp.accept(this, env); // Dynamic type-checking
-			result+=getNumValOrRefLocValue(intermediate);
+			Value intermediate = (Value) exp.accept(this, env); // Dynamic type-checking
+			result += getNumValOrRefLocValue(intermediate);
 			refValPresent |= intermediate instanceof RefVal;
 		}
-		
-		if(refValPresent)
+
+		if (refValPresent)
 		{
 			RefVal ret = new RefVal(result);
 			ret.calculated = true;
@@ -61,43 +59,6 @@ public class Evaluator implements Visitor<Value>
 			return new NumVal(result);
 	}
 
-	public Value visit(RarithExp e, Env env)
-	{	
-		boolean ret = false;
-		Value val = (Value)e.value_exp().accept(this, env);
-		if(val instanceof RefVal)
-			ret = ((RefVal)val).calculated;
-
-		return new BoolVal(ret);
-	}
-	
-	public Value visit(ReachableExp e, Env env)
-	{
-		VarExp var = (VarExp)e.value_exp();//this should be an identifier
-		RefVal p= (RefVal)env.get(var.name());//this should be a pointer
-		Value val = heap.deref(p);//This can be anything so Value needs to 
-		                          //recursively return all reachable pointers
-
-		
-		//System.out.println(var._name + "--> loc: " + val.loc());
-		
-		//var.
-		
-
-		
-		
-		//env.get(e.value_exp())
-		System.out.println("");
-		return new Value.BoolVal(false);
-/*		boolean ret = false;
-		Value val = (Value)e.value_exp().accept(this, env);
-		if(val instanceof RefVal)
-			ret = ((RefVal)val).calculated;
-
-		return new BoolVal(ret);*/
-	}
-	
-	
 	@Override
 	public Value visit(Unit e, Env env)
 	{
@@ -167,20 +128,20 @@ public class Evaluator implements Visitor<Value>
 	public Value visit(SubExp e, Env env)
 	{
 		List<Exp> operands = e.all();
-		
+
 		Value lVal = (Value) operands.get(0).accept(this, env);
 		double result = getNumValOrRefLocValue(lVal);
 		boolean refValPresent = lVal instanceof RefVal;
-		
+
 		for (int i = 1; i < operands.size(); i++)
 		{
 			Value rVal = (Value) operands.get(i).accept(this, env);
 			result = result - getNumValOrRefLocValue(rVal);
 			refValPresent |= rVal instanceof RefVal;
 		}
-		if(refValPresent)
+		if (refValPresent)
 		{
-			RefVal ret = new RefVal((int)result);
+			RefVal ret = new RefVal((int) result);
 			ret.calculated = true;
 			return ret;
 		}
@@ -405,7 +366,7 @@ public class Evaluator implements Visitor<Value>
 	public Value visit(DerefExp e, Env env)
 	{ // New for reflang.
 		Exp loc_exp = e.loc_exp();
-		Value loc = (Value)loc_exp.accept(this, env);
+		Value loc = (Value) loc_exp.accept(this, env);
 		return heap.deref(new RefVal(getNumValOrRefLocValue(loc)));
 	}
 
@@ -417,8 +378,8 @@ public class Evaluator implements Visitor<Value>
 		//Note the order of evaluation below.
 		Value rhs_val = (Value) rhs.accept(this, env);
 		Value loc = (Value) lhs.accept(this, env);
-	
-		return heap.setref(new RefVal(getNumValOrRefLocValue(loc)),rhs_val);
+
+		return heap.setref(new RefVal(getNumValOrRefLocValue(loc)), rhs_val);
 	}
 
 	@Override
@@ -428,6 +389,84 @@ public class Evaluator implements Visitor<Value>
 		Value.RefVal loc = (Value.RefVal) value_exp.accept(this, env);
 		heap.free(loc);
 		return new Value.UnitVal();
+	}
+
+	private boolean recRarith(Value val, Env env)
+	{
+		if (val instanceof Value.PairVal)
+		{
+			PairVal pair = (PairVal) val;
+			return recRarith(pair._fst, env) || recRarith(pair._snd, env);
+		}
+		else if (val instanceof Value.RefVal)
+		{
+			RefVal pointer = (RefVal) val;
+			return ((RefVal) val).calculated || recRarith(heap.deref(pointer), env);
+		}
+		else if (val instanceof FunVal)
+		{
+			FunVal fun = (FunVal) val;
+			return recRarith((Value) fun.body().accept(this, fun.env()), env);//FIXME <---- not sure about this
+		}
+		else
+			return false;
+	}
+
+	public Value visit(RarithExp e, Env env)
+	{
+		Value val = (Value) e.value_exp().accept(this, env);
+		return new BoolVal(recRarith(val, env));
+	}
+
+	private int getNumValOrRefLocValue(Value val)
+	{
+		int ret = 0;
+		if (val instanceof NumVal)
+			ret = (int) ((NumVal) val).v();
+		else
+			ret = ((RefVal) val).loc();
+
+		return ret;
+	}
+
+	private void recReachable(Value val, Set<Integer> acc)
+	{
+		//acc is accumulator
+
+		//Only PairVal's and RefVals can reach other pointers			
+		if (val instanceof RefVal)
+		{
+			RefVal p = (RefVal) val;//this should be a pointer
+			acc.add(p.loc());
+
+			Value recVal = heap.deref(p);//Recurse
+			recReachable(recVal, acc);
+		}
+		else if (val instanceof PairVal)
+		{
+			recReachable(((PairVal) val).fst(), acc);//Recurse
+			recReachable(((PairVal) val).snd(), acc);//Recurse
+		}
+	}
+
+	public Value visit(ReachableExp e, Env env)
+	{
+		TreeSet<Integer> acc = new TreeSet<Integer>();//acumulator
+
+		VarExp var = (VarExp) e.value_exp();//this should be an identifier
+		Value val = (Value) env.get(var.name());//this should be a pointer
+		recReachable(val, acc);
+
+		Iterator<Integer> itr = acc.iterator();
+		String ret = "{";
+		if (itr.hasNext())
+			ret += " loc: " + itr.next();
+
+		while (itr.hasNext())
+			ret += ", loc: " + itr.next();
+		ret += " }";
+
+		return new Value.StringVal(ret);
 	}
 
 	private Env initialEnv()

@@ -503,7 +503,7 @@ public class Reader {
                 	//System.out.println(java.util.Arrays.toString(expectString(node, index++, 1)));
                 	String name = expectString(node, index++, 1)[0];
                     expect(node,index++, ")");
-                	System.out.println(name);
+                	
                     return new AST.ReachableExp(new AST.VarExp(name));                	
                 }
                 
