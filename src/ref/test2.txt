@@ -1,0 +1,139 @@
+Exam 2 in ComS 342 (Programming Lanugages)
+Nov 4, 2014
+11:00am-12:15pm 
+
+**** Questions
+
+There are 4 questions in this exam. Question 1 and 3 are worth 30 points each
+and questions 2 and 4 are worth 20 points each. 
+
+**** Policy
+
+* Use any material that you would like.
+* Do not collaborate (locally, remotely or covertly)
+* You will get partial grades.
+
+**** Submission instructions
+
+0. Import the zip file as an Eclipse project.
+1. Modify files in src/forklang to solve the question.
+3. Export your project from Eclipse as a zip file and upload it at the exam submission 
+   site on Blackboard. Export the entire directory, and not just portions .
+
+
+**** Q1 [30 points]: In this question you will explore a semantic variation 
+of function call and return
+
+A function definition can provide default values for the function's parameters. 
+Extend the Forklang interpreter to support functions with the default value for 
+their last parameters (not all parameters). 
+
+First, modify the syntax of the lambda expression (lambdaexp in grammar) to 
+match the following:
+
+lambdaexp: '(' Lambda '(' Identifier* '('Identifier '=' exp ')' ')' exp ')' ; 
+
+This new syntax allows a function definition to provide a value for its last 
+parameter using '('Identifier '=' exp ')' part. For simplicity, in this syntax, 
+functions have at least one parameter. Syntax of the call expression callexp 
+does not change.
+
+Second, modify the semantics of call expression callexp to allow calling a 
+function with or without providing the value for its last parameter. 
+In a call expression, if last parameter's value is not provided, then the 
+parameter's default value provided in the function definition is used as the 
+value of the parameter. Otherwise, if the last parameter's value is provided, 
+then the default value is ignored and the provided value in the call expression 
+is used as the value of the parameter.
+
+The following interaction log illustrates the syntax and semantics for our 
+desired extension:
+
+$ (define func (lambda ((v = 342))  v) )
+$ (func) 
+342
+
+$ (func 541)
+541
+
+$ (define add (lambda (a (b = 5)) (+ a b)) )
+$ (add 8) 
+13
+
+$ (add 8 4) 
+12
+
+
+**** Q2 [20 points]: In this question you will explore a semantic variation
+of the heap abstraction.
+
+Typed heap enforces the property that in a memory location, only values of 
+compatible type can be stored. Two types are compatible if one is the subtype 
+of the other. Extend the Forklang interpreter to support typed heap. 
+
+Modify, semantics of assign expression assignexp to check that upon setting 
+the value of a location the type of the new value is compatible with the type 
+of the old value already stored in that location. Otherwise, raise a dynamic error.
+
+Hint: in Java you can use isAssignableFrom to check for compatibility of types.
+
+The following log interaction illustrates the semantics of typed heap.
+
+$(let ((x (ref 0))) (set! x 12))
+12
+
+$(let ((x (ref 0))) (set! x #t)) 
+Assigning a value of an incompatible type to the location in  (set! x #t)
+
+$(let ((x (ref (ref 0)))) (set! x (ref(ref(ref 5)))))
+loc:4
+
+ 
+**** Q3 [30 points]: In this question you will explore a semantic variation 
+of the reference related expressions.
+
+A hot heap location is one that is accessed more often by a program.  Extend 
+Forklang to support hot store locations.
+
+- First step in keeping track of hot store locations is to augment the store 
+locations to have an addition integer field "access_count". 
+
+- Second step is to enhance the logic of accessing a store location to increment 
+the access-count on both reads and writes of memory locations.
+
+To achieve this semantics, modify the Forklang interpreter as follows:
+
+1. Modify the heap so that each location is a pair of the value and a number 
+(from now on we call this number "access_count"). You can also use a separate 
+list to keep track of access_count for locations. Initially, the access_count 
+for each location is 0. 
+
+2. Modify the interpreter such that, for every read of a location and 
+assignment to the location, the field "access_count" of the location is 
+incremented by 1.
+
+3. Add a "frequency" expression to Forklang with the following syntax that 
+takes a location and evaluates to the access_count of that location.
+
+freqexp: '(' 'frequency' exp ')' ;
+
+
+**** Q4 [20 points total]: In this question, you will become more familiar with 
+the concurrency features of the Forklang language by making use of these features
+to write a parallel program.
+
+Use the fork expression to implement a concurrent version of the factorial 
+function for even numbers.
+
+Write a function multiply that takes two numbers up and low and computes the 
+multiplication of (up)*(up-1)*..*(low). For concurrent computation of the 
+factorial of n, fork two threads where one computes (n)*(n-1)*(n-2)*..*(k) 
+and the other thread computes (k-1)*(k-2)*..*(1), where k is n divided by 2. 
+Finally result of two threads of the fork expression are multiplied together 
+to produce the final result.
+
+The signature of the function definition is given below.
+
+(define factorial (lambda (n) 
+   /* ... */ 
+)
