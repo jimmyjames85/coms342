@@ -20,11 +20,21 @@ to produce the final result.
 
 
 
+(define even?
+  (lambda (n (dummy =""))
+    (if (= n 1) #f
+	(if (= n (- 0 1)) #f
+	    (if (= n 0) #t
+		(if (> n 0) (even? (- n 2))
+		    (even? (- 2 n))))))))
+
 (define factorial 
     (lambda (n (dummy = ""))
-	(let (
-	      (lst (fork  (multiply (/ n 2) 1) (multiply n (+ (/ n 2) 1)) )  ))
-	  (* (car lst) (car (cdr lst))))))
-
+	(let 
+	    ((lst (fork  
+		   (multiply (/ (if (even? n) n (- n 1) ) 2) 1)
+		   (multiply n (+ (/ (if (even? n) n (- n 1) ) 2) 1))
+		   )))
+	  (* (car lst) (cdr lst)))))
 
 
