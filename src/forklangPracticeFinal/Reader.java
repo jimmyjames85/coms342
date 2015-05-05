@@ -1,4 +1,4 @@
-package actlang;
+package forklang;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -16,12 +16,12 @@ import org.antlr.v4.runtime.tree.*;
 import org.antlr.v4.tool.Grammar;
 import org.antlr.v4.tool.LexerGrammar;
 
-import actlang.AST.*;
+import forklang.AST.*;
 
 public class Reader
 {
 
-	private static String GRAMMAR_FILE = "build/actlang/ActLang.g";
+	private static String GRAMMAR_FILE = "build/forklang/ForkLang.g";
 	//Following are ANTLR constants - Change them if you change the Grammar.
 	//Convention: New rules are always added at the end of the file. 
 	private static final String startRule = "program";
@@ -31,7 +31,7 @@ public class Reader
 			ifexp = 14, lessexp = 15, equalexp = 16, greaterexp = 17, // Other expressions for convenience.
 			carexp = 18, cdrexp = 19, consexp = 20, listexp = 21, nullexp = 22, letrecexp = 23, // New expression for the letrec language.
 			refexp = 24, derefexp = 25, assignexp = 26, freeexp = 27, // New expression for the reflang language.
-			forkexp = 28, lockexp = 29, unlockexp = 30, actorexp = 31, sendexp = 32, stopexp = 33, selfexp = 34;
+			forkexp = 28, lockexp = 29, unlockexp = 30;
 
 	private static final boolean DEBUG = false;
 
@@ -42,13 +42,15 @@ public class Reader
 		return program;
 	}
 
-	Program requireFile(String fileLoc) throws IOException
+ 	Program requireFile(String fileLoc) throws IOException
 	{
-		String programText = readFile(fileLoc);
+		String programText = readFile( fileLoc );
 		Program program = parse(programText);
 		return program;
 	}
 
+
+	
 	Program parse(String programText)
 	{
 		final LexerInterpreter lexEngine = lg.createLexerInterpreter(new ANTLRInputStream(programText));
@@ -238,14 +240,6 @@ public class Reader
 					return convertLockExp(node);
 				case unlockexp:
 					return convertUnlockExp(node);
-				case actorexp:
-					return convertActorExp(node);
-				case sendexp:
-					return convertSendExp(node);
-				case stopexp:
-					return convertStopExp(node);
-				case selfexp:
-					return convertSelfExp(node);
 				case exp:
 					return visitChildrenHelper(node).get(0);
 				case program:
@@ -308,51 +302,6 @@ public class Reader
 			if (s.equals("#t"))
 				return new AST.BoolConst(true);
 			return new AST.BoolConst(false);
-		}
-
-		private AST.Exp convertActorExp(RuleNode node)
-		{
-			int index = expect(node, 0, "(", "actor", "(");
-			List<String> names = new ArrayList<String>();
-			System.out.println("passed actor");
-			while (!match(node, index, ")"))
-			{
-				//				index++;
-				String name = expectString(node, index++, 1)[0];
-				names.add(name);
-			}
-			expect(node, index++, ")");
-
-			AST.Exp body = node.getChild(index++).accept(this);
-			expect(node, index++, ")");
-			return new AST.ActorExp(names, body);
-		}
-
-		private AST.Exp convertSendExp(RuleNode node)
-		{
-			int index = expect(node, 0, "(", "send");
-			AST.Exp actor = node.getChild(index++).accept(this);
-			List<Exp> actuals = new ArrayList<Exp>();
-			while (!match(node, index, ")"))
-			{
-				AST.Exp actual = node.getChild(index++).accept(this);
-				actuals.add(actual);
-			}
-			expect(node, index++, ")");
-
-			return new AST.SendExp(actor, actuals);
-		}
-
-		private AST.Exp convertStopExp(RuleNode node)
-		{
-			expect(node, 0, "(", "stop", ")");
-			return new AST.StopExp();
-		}
-
-		private AST.Exp convertSelfExp(RuleNode node)
-		{
-			expect(node, 0, "(", "self", ")");
-			return new AST.SelfExp();
 		}
 
 		/**
@@ -659,10 +608,15 @@ public class Reader
 		private AST.Exp convertForkExp(RuleNode node)
 		{
 			int index = expect(node, 0, "(", "fork");
-			AST.Exp lhs_exp = node.getChild(index++).accept(this);
-			AST.Exp rhs_exp = node.getChild(index++).accept(this);
+			List<AST.Exp> operands = new ArrayList<AST.Exp>();
+			while (!match(node, index, ")"))
+			{
+				AST.Exp operand = node.getChild(index++).accept(this);
+				operands.add(operand);
+			}
 			expect(node, index++, ")");
-			return new AST.ForkExp(lhs_exp, rhs_exp);
+			return new AST.ForkExp(operands);
+
 		}
 
 		private AST.Exp convertLockExp(RuleNode node)

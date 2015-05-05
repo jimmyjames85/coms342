@@ -39,16 +39,16 @@ grammar ForkLang;
         | derefexp //New for reflang
         | assignexp //New for reflang
         | freeexp //New for reflang
-        | forkexp //New for actlang
-        | lockexp //New for actlang
-        | unlockexp //New for actlang
-		| actorexp 
-		| sendexp
-		| stopexp
-		| selfexp
+        | forkexp //New for forklang
+        | lockexp //New for forklang
+        | unlockexp //New for forklang
+        | eventexp 
+        | announceexp 
+        | whenexp 
+		| signalexp
+		| readexp
+		| writeexp
         ;
- 
-  
  
  varexp  : 
  		Identifier
@@ -104,11 +104,16 @@ grammar ForkLang;
  		;
 
  lambdaexp :
- 		'(' Lambda 
- 			'(' Identifier* ')'
- 			exp 
- 			')' 
- 		;
+	 	'(' Lambda 
+	 		'(' Identifier* ')'
+	 		exp 
+	 		')'
+	 	| '(' Lambda
+	 		'(' Identifier '...' ')'
+	 		exp
+	 		')'			 
+	 	;
+
 
  callexp :
  		'(' exp 
@@ -222,25 +227,49 @@ grammar ForkLang;
                     exp
                     ')'
                 ;
-unlockexp  :
+ unlockexp  :
                 '(' UnLock
                     exp
                     ')'
                 ;
 
-actorexp : '(' Actor  '(' Identifier* ')' exp  ')'  ;
- sendexp : '(' Send exp exp*  ')' ;
- stopexp : '(' Stop ')' ;
- selfexp : '(' Self ')' ;
- 
- 
+ eventexp  :
+                '(' Event
+                    '(' Identifier* ')'
+                ')'
+                ;
+ announceexp  :
+                '(' Announce
+					exp
+                    '(' exp* ')'
+                ')'
+                ;
+
+ whenexp :
+ 		'(' When exp
+			Do exp
+		')';	
+
+ signalexp  :
+                '(' Signal
+                    exp
+                    ')'
+                ;
+
+ readexp  :
+                '(' Read
+                    exp
+                    ')'
+                ;
+
+ writeexp  :
+                '(' Write
+                    exp
+					exp 
+                    ')'
+                ;
+				
 // Keywords
-
- Actor : 'actor' ;
- Send : 'send' ;
- Stop : 'stop' ;
- Self : 'self' ;
-
 
  Let : 'let' ;
  Define : 'define' ;
@@ -265,7 +294,13 @@ actorexp : '(' Actor  '(' Identifier* ')' exp  ')'  ;
  Fork : 'fork' ;
  Lock : 'lock' ;
  UnLock : 'unlock' ;
- NewLock : 'newlock' ;
+ Event : 'event' ;
+ Announce : 'announce' ;
+ When : 'when' ;
+ Do : 'do' ;
+ Signal : 'signal';
+ Read : 'read';
+ Write : 'write';
  
  // Lexical Specification of this Programming Language
  //  - lexical specification rules start with uppercase

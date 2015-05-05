@@ -1,0 +1,4 @@
+(define var1 (signal 1))
+(define var2 (signal 2))
+(define var3 (signal (+ (read var1) (read var2))))
+(let ((dummy (write var1 5))) (read var3))

@@ -39,16 +39,10 @@ grammar ForkLang;
         | derefexp //New for reflang
         | assignexp //New for reflang
         | freeexp //New for reflang
-        | forkexp //New for actlang
-        | lockexp //New for actlang
-        | unlockexp //New for actlang
-		| actorexp 
-		| sendexp
-		| stopexp
-		| selfexp
+        | forkexp //New for forklang
+        | lockexp //New for forklang
+        | unlockexp //New for forklang
         ;
- 
-  
  
  varexp  : 
  		Identifier
@@ -212,7 +206,7 @@ grammar ForkLang;
  forkexp  :
                 '(' Fork
                     exp
-                    exp
+                    (exp)+
                     ')'
                 ;
 
@@ -222,25 +216,14 @@ grammar ForkLang;
                     exp
                     ')'
                 ;
-unlockexp  :
+ unlockexp  :
                 '(' UnLock
                     exp
                     ')'
                 ;
 
-actorexp : '(' Actor  '(' Identifier* ')' exp  ')'  ;
- sendexp : '(' Send exp exp*  ')' ;
- stopexp : '(' Stop ')' ;
- selfexp : '(' Self ')' ;
- 
- 
+
 // Keywords
-
- Actor : 'actor' ;
- Send : 'send' ;
- Stop : 'stop' ;
- Self : 'self' ;
-
 
  Let : 'let' ;
  Define : 'define' ;

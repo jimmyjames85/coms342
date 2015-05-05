@@ -42,13 +42,7 @@ grammar ForkLang;
         | forkexp //New for actlang
         | lockexp //New for actlang
         | unlockexp //New for actlang
-		| actorexp 
-		| sendexp
-		| stopexp
-		| selfexp
         ;
- 
-  
  
  varexp  : 
  		Identifier
@@ -228,19 +222,8 @@ unlockexp  :
                     ')'
                 ;
 
-actorexp : '(' Actor  '(' Identifier* ')' exp  ')'  ;
- sendexp : '(' Send exp exp*  ')' ;
- stopexp : '(' Stop ')' ;
- selfexp : '(' Self ')' ;
- 
- 
+
 // Keywords
-
- Actor : 'actor' ;
- Send : 'send' ;
- Stop : 'stop' ;
- Self : 'self' ;
-
 
  Let : 'let' ;
  Define : 'define' ;
